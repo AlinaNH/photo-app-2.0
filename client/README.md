@@ -1,4 +1,4 @@
-# photo-app-2.0
+# client
 
 ## Project setup
 ```
@@ -10,11 +10,6 @@ npm install
 npm run serve
 ```
 
-### Compiles for production
-```
-npm run start
-```
-
 ### Compiles and minifies for production
 ```
 npm run build
@@ -24,3 +19,6 @@ npm run build
 ```
 npm run lint
 ```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
