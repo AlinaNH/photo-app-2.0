@@ -237,17 +237,26 @@ export default {
     changeShapes: function(e) {
       const preview = this.$refs.output;
       const cropType = e.target.classList[1];
+      const width = +window.getComputedStyle(preview).getPropertyValue("width").slice(0, -2);
+      const height = +window.getComputedStyle(preview).getPropertyValue("height").slice(0, -2);
       switch(cropType) {
         case "circle": {
           preview.style.clipPath = "circle(40%)";
           break;
         }
         case "square": {
-          preview.style.clipPath = "inset(5%) ";
+          let c;
+          if (width > height) {
+            c = (width - height) / width / 2 * 100;
+            preview.style.clipPath = `inset(0% ${c}%)`;
+          } else {
+            c = (height - width) / height / 2 * 100;
+            preview.style.clipPath = `inset(${c}% 0%)`;
+          }
           break;
         }
         case "defaultOption": {
-          preview.style.clipPath = "none ";
+          preview.style.clipPath = "none";
           break;
         }
       }
