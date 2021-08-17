@@ -1,9 +1,9 @@
 
-const express = require('express')
-const mongoose = require('mongoose')
+const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
 
-const app = express()
+const app = express();
 app.use(cors());
 
 const MONGODB_URL = process.env.DB_URL;
@@ -19,7 +19,7 @@ async function start() {
       useCreateIndex: true,
     });
 
-    require('./app/api/ImageAPI')(app);
+    require('./app/api/routes')(app);
 
     app.listen(PORT,
       () => console.log(`Server running at http://${HOST}:${PORT}/`)

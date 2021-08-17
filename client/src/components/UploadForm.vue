@@ -69,52 +69,44 @@ import axios from 'axios';
 export default {
   name: "UploadForm",
   methods: {
-    handleClick: function () {
-      const imageInput = this.$refs.imageInput.files[0]
-      const modal = this.$refs.modal
-      const fd = new FormData()
+    handleClick: async function () {
+      const imageInput = this.$refs.imageInput.files[0];
+      const modal = this.$refs.modal;
+      const fd = new FormData();
   
-      fd.append("image", imageInput)
+      fd.append("image", imageInput);
       
       const config = {
         headers : {
           'Content-Type' : 'multipart/form-data',
         },
         responseType: 'json'
-      }
+      };
 
-      axios.post('http://localhost:5000/upload', fd, config)
-        .then(() => {
-            this.$router.push('/editing')
-          })
-        .catch((err) => {
-          modal.classList.remove("hidden")
-          modal.classList.add("visible")
-          modal.firstChild.innerHTML = err.response.data.message
-        })
+      try {
+        await axios.post(`${process.env.VUE_APP_BASE_API}/upload`, fd, config);
+        this.$router.push('/editing');
+      } catch (err) {
+        modal.classList.remove("hidden");
+        modal.classList.add("visible");
+        modal.firstChild.innerHTML = err.response?.data?.message;
+      }
     },
 
     handleChange: function () {
-      const imageInput = this.$refs.imageInput.files[0]
-      const imagePreview = this.$refs.imagePreview
-      const icon = this.$refs.icon
+      const imageInput = this.$refs.imageInput.files[0];
+      const imagePreview = this.$refs.imagePreview;
+      const icon = this.$refs.icon;
       if (imageInput) {
-        imagePreview.src = URL.createObjectURL(imageInput)
-        imagePreview.classList.toggle("visible")
-        icon.classList.add("hidden")
+        imagePreview.src = URL.createObjectURL(imageInput);
+        imagePreview.classList.toggle("visible");
+        icon.classList.add("hidden");
       }
     }
   }
-}
+};
 </script>
-
 <style scoped>
-.center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .column {
   display: flex;
   flex-direction: column;
@@ -127,19 +119,6 @@ export default {
   width: 600px;
   height: 400px;
   background-color: lightgrey;
-}
-
-.clear {
-  width: 100%;
-  height: 30px;
-}
-
-.hidden {
-  display: none;
-}
-
-.visible {
-  display: flex;
 }
 
 .image-preview {

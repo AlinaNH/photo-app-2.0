@@ -1,6 +1,6 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import UploadForm from './components/UploadForm'
-import EditingForm from './components/EditingForm'
+import { createRouter, createWebHistory } from 'vue-router';
+import UploadForm from './components/UploadForm';
+import EditingForm from './components/EditingForm';
 
 const routes = [
   {
@@ -13,9 +13,11 @@ const routes = [
     name: 'EditingForm',
     component: EditingForm
   }
-]
+];
+
 const router = createRouter({
   history: createWebHistory(),
   routes
-})
-export default router
+});
+
+export default router;
