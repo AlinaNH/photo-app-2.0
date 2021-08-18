@@ -41,7 +41,7 @@ export default {
         responseType: "json"
       };
       try {
-        const response = await axios.get("http://localhost:5000/users/logout", config);
+        const response = await axios.get(`${process.env.VUE_APP_BASE_API}/users/logout`, config);
         if (response.data.success) this.$router.push("/entry/login");
       } catch (err) {
         this.$router.push("/entry/login");

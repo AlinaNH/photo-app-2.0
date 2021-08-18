@@ -99,7 +99,7 @@ export default {
       };
 
       try {
-        await axios.post("http://localhost:5000/users/register", data, config);
+        await axios.post(`${process.env.VUE_APP_BASE_API}/users/register`, data, config);
         this.$router.push("/entry/login");
       } catch (err) {
         this.$toast.show("Failed to sign up. Please, try again.", {
@@ -122,7 +122,7 @@ export default {
       };
 
       try {
-        const response = await axios.post("http://localhost:5000/users/login", data, config);
+        const response = await axios.post(`${process.env.VUE_APP_BASE_API}/users/login`, data, config);
         window.localStorage.setItem("token", response.data?.userData?.token);
         window.localStorage.setItem("userID", response.data?.userData?.userID);
         document.cookie = `authToken=${response.data?.userData?.token}`;
