@@ -22,7 +22,7 @@ const routes = [
     component: EditingForm
   },
   {
-    path: '/entry/:type',
+    path: '/auth/:type',
     name: 'Entry',
     component: Entry
   },

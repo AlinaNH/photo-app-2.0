@@ -18,14 +18,14 @@
               <p>
                 Please, enter the system by <span
                   class="link"
-                  @click="() => $router.push('/entry/login')"
+                  @click="() => $router.push('/auth/login')"
                 >log in</span>.
               </p>
               <div class="clear" />
               <p>
                 If you don"t have an account, please <span
                   class="link"
-                  @click="() => $router.push('/entry/signup')"
+                  @click="() => $router.push('/auth/signup')"
                 >sign up</span>.
               </p>
             </div>

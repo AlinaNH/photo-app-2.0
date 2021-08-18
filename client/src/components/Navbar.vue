@@ -7,13 +7,15 @@
       <va-navbar-item>PHOTO APP 2.0</va-navbar-item>
     </template>
     <template #right>
-      <div class="visible" ref="logout">
-        <va-navbar-item
-          class="pointer"
-          @click="handleClick"
-        >
-          Log Out
-        </va-navbar-item>
+      <div v-if="$route.path !== '/'">
+        <div ref="logout">
+          <va-navbar-item
+            class="pointer"
+            @click="handleClick"
+          >
+            Log Out
+          </va-navbar-item>
+        </div>
       </div>
     </template>
   </va-navbar>
@@ -21,16 +23,7 @@
 <script>
 import axios from "axios";
 export default {
-  name: "Entry",
-  mounted: function() {
-    if (this.$route.path === "/") {
-      this.$refs.logout.classList.remove('visible');
-      this.$refs.logout.classList.add('hidden');
-    } else {
-      this.$refs.logout.classList.remove('hidden');
-      this.$refs.logout.classList.add('visible');
-    }
-  },
+  name: "Navbar",
   methods: {
     handleClick: async function() {
       const config = {
@@ -42,9 +35,9 @@ export default {
       };
       try {
         const response = await axios.get(`${process.env.VUE_APP_BASE_API}/users/logout`, config);
-        if (response.data.success) this.$router.push("/entry/login");
+        if (response.data.success) this.$router.push("/auth/login");
       } catch (err) {
-        this.$router.push("/entry/login");
+        this.$router.push("/auth/login");
       }
     }
   }

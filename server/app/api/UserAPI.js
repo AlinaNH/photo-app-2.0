@@ -2,12 +2,11 @@
 module.exports = (app) => {
   const { User } = require("../models/UserModel");
   const { auth } = require("..//middleware/auth");
+
   app.post('/users/register', async (req, res) => {
-    const user = new User(req.body);
-    await user.save((err, doc) => {
-      if (err) {
-        return res.status(422).json({errors:err})
-      } else {
+    try {
+      const user = new User(req.body);
+      await user.save(async (err, doc) => {
         const userData = {
           email: doc.email,
         }
@@ -16,37 +15,31 @@ module.exports = (app) => {
           message: "Successfully Signed Up",
           userData
         });
-      }
-    });
+      });
+    } catch (err) {
+      return res.status(422).json({ errors: err });
+    }
   });
 
   app.post('/users/login', async (req, res) => {
-    User.findOne({ "email": req.body.email }, (err, user) => {
-      if (!user) {
-        return res.status(404).json({ success: false, message: "User email not found!" });
-      } else {
-        user.comparePassword(req.body.password, (err, isMatch) => {
-          if (!isMatch) {
-            return res.status(400).json({ success: false, message: "Wrong Password!" });
-          } else {
-            user.generateToken((err, user) => {
-              if (err) {
-                return res.status(400).send({ err });
-              } else {
-                const data = {
-                  userID: user._id,
-                  email: user.email,
-                  token: user.token
-                };
-                res.cookie("authToken", user.token).status(200).json({
-                  success: true,
-                  message: "Successfully Logged In!",
-                  userData: data
-                });
-              }
+    User.findOne({ "email": req.body.email }, async (err, user) => {
+      try {
+        user.comparePassword(req.body.password, async (err, isMatch) => {
+          user.generateToken((err, user) => {
+            const data = {
+              userID: user._id,
+              email: user.email,
+              token: user.token
+            };
+            res.cookie("authToken", user.token).status(200).json({
+              success: true,
+              message: "Successfully Logged In!",
+              userData: data
             });
-          }
+          });
         });
+      } catch {
+        return res.status(404).json({ success: false, message: err });
       }
     });
   });

@@ -45,7 +45,7 @@ userSchema.methods.comparePassword = function (candidatePassword, callBack) {
 
 userSchema.methods.generateToken = function (callBack) {
   const user = this;
-  const token = jwt.sign(user._id.toHexString(), process.env.SECRETE);
+  const token = jwt.sign(user._id.toHexString(), process.env.SECRET);
   user.token = token;
   user.save(function (err, user) {
     if (err) return callBack(err)
@@ -55,7 +55,7 @@ userSchema.methods.generateToken = function (callBack) {
 
 userSchema.statics.findByToken = function (token, callBack) {
   const user = this;
-  jwt.verify(token, process.env.SECRETE, function (err, decode) {
+  jwt.verify(token, process.env.SECRET, function (err, decode) {
     user.findOne({ "_id": decode, "token": token }, function (err, user) {
       if (err) return callBack(err);
       callBack(null, user);

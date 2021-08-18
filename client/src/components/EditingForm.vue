@@ -210,7 +210,7 @@ export default {
     };
     try {
       const response = await axios.get(`${process.env.VUE_APP_BASE_API}/users/auth`, config);
-      if (!response.data.isAuthenticated) this.$router.push('/entry/login');
+      if (!response.data.isAuthenticated) this.$router.push('/auth/login');
     } catch (err) {
       this.$toast.show('Failed to log in. Please, try again.', {
         type: 'error',

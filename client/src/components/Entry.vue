@@ -60,8 +60,8 @@ export default {
   },
   methods: {
     changeType: function() {
-      if (this.$route.params.type === "signup") this.$router.push("/entry/login");
-      if (this.$route.params.type === "login") this.$router.push("/entry/signup");
+      if (this.$route.params.type === "signup") this.$router.push("/auth/login");
+      if (this.$route.params.type === "login") this.$router.push("/auth/signup");
     },
     isValid: function() {
       const isEmail = validator.isEmail(this.email);
@@ -71,7 +71,7 @@ export default {
           duration: "4000"
         });
         return false;
-      } else if (this.password.length <= 8) {
+      } else if (this.password.length <= 7) {
         this.$toast.show("Password should has at least 8 characters.", {
           type: "error",
           duration: "4000"  
@@ -100,7 +100,7 @@ export default {
 
       try {
         await axios.post(`${process.env.VUE_APP_BASE_API}/users/register`, data, config);
-        this.$router.push("/entry/login");
+        this.$router.push("/auth/login");
       } catch (err) {
         this.$toast.show("Failed to sign up. Please, try again.", {
           type: "error",
@@ -125,7 +125,6 @@ export default {
         const response = await axios.post(`${process.env.VUE_APP_BASE_API}/users/login`, data, config);
         window.localStorage.setItem("token", response.data?.userData?.token);
         window.localStorage.setItem("userID", response.data?.userData?.userID);
-        document.cookie = `authToken=${response.data?.userData?.token}`;
         this.$router.push("/upload");
       } catch (err) {
         this.$toast.show("Failed to log in. Please, try again.", {
