@@ -1,5 +1,7 @@
 <template>
-  <div class="">
+  <div>
+    <Navbar />
+    <div class="clear" />
     <div class="row center">
       <va-card class="flex margin20 preview-container">
         <va-card-title class="display-5">
@@ -194,8 +196,28 @@
 </template>
 <script>
 import axios from "axios";
+import Navbar from './Navbar';
 export default {
-  mounted() {
+  name: "EditingForm",
+  components: { Navbar },
+  mounted: async function() {
+    const config = {
+      headers : {
+        'Content-Type': 'application/json',
+        'authToken': localStorage.getItem('token')
+      },
+      responseType: 'json'
+    };
+    try {
+      const response = await axios.get('http://localhost:5000/users/auth', config);
+      if (!response.data.isAuthenticated) this.$router.push('/entry/login');
+    } catch (err) {
+      this.$toast.show('Failed to log in. Please, try again.', {
+        type: 'error',
+        duration: '4000'
+      });
+    }
+
     axios
       .get(`${process.env.VUE_APP_BASE_API}/getLast`)
       .then((response) => {

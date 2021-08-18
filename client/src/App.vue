@@ -19,6 +19,10 @@ img {
   font-family: Avenir, Helvetica, Arial, sans-serif;
 }
 
+#app > div:first-of-type {
+  height: 85%;
+}
+
 .center {
   display: flex;
   justify-content: center;
@@ -46,5 +50,10 @@ img {
 
 .scroll-card {
   display: inline-block;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
 }
 </style>
