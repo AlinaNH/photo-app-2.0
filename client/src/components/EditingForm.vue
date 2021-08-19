@@ -7,18 +7,24 @@
         <va-card-title class="display-5">
           Photo Preview
         </va-card-title>
-        <va-card-content class="center preview">
-          <img
-            ref="output"
-            src="#"
-            class="hidden"
-            @load="showSpinner"
-          >
-          <img 
-            ref="frame"
-            src="#"
-            class="hidden absolute"
-          >
+        <va-card-content class="center">
+          <div ref="containerToSave">
+            <div class="center preview">
+              <img
+                ref="output"
+                src="#"
+                class="hidden"
+                name="image"
+                @load="showSpinner"
+              >
+              <div class="forDOMToImgLibrary" />
+              <img 
+                ref="frame"
+                src="#"
+                class="hidden framePreview"
+              >
+            </div>
+          </div>
           <div
             ref="spinner"
             class="spinner"
@@ -192,34 +198,43 @@
         Save and Print
       </va-button>
     </div>
+    <div class="clear" />
   </div>
 </template>
 <script>
 import axios from "axios";
+import domtoimage from "dom-to-image";
 import Navbar from './Navbar';
 export default {
   name: "EditingForm",
   components: { Navbar },
   mounted: async function() {
-    const config = {
+    const configUserAuth = {
       headers : {
         'Content-Type': 'application/json',
-        'authToken': localStorage.getItem('token')
+        'authtoken': localStorage.getItem('token')
       },
       responseType: 'json'
     };
     try {
-      const response = await axios.get(`${process.env.VUE_APP_BASE_API}/users/auth`, config);
+      const response = await axios.get(`${process.env.VUE_APP_BASE_API}/users/auth`, configUserAuth);
       if (!response.data.isAuthenticated) this.$router.push('/auth/login');
     } catch (err) {
       this.$toast.show('Failed to log in. Please, try again.', {
-        type: 'error',
-        duration: '4000'
+        type: 'error'
       });
     }
 
+    const configImgLast = {
+      headers : {
+        'Content-Type': 'application/json',
+        'authtoken': localStorage.getItem('token')
+      },
+      responseType: 'json'
+    };
+
     axios
-      .get(`${process.env.VUE_APP_BASE_API}/getLast`)
+      .get(`${process.env.VUE_APP_BASE_API}/img/last`, configImgLast)
       .then((response) => {
         const buffer = new Buffer.from(response.data.data.data).toString("base64");
         this.$refs.output.src = `data:image/png;base64,${buffer}`;
@@ -248,8 +263,11 @@ export default {
 
         frame.classList.remove("hidden");
         frame.src = framePath;
-        frame.style.width = window.getComputedStyle(preview).getPropertyValue("width");
-        frame.style.height = window.getComputedStyle(preview).getPropertyValue("height");
+        frame.style.width = `${preview.width}px`;
+        frame.style.height = `${preview.height}px`;
+        frame.style.position = 'relative';
+        frame.style.left = `-${preview.width}px`;
+        frame.style.marginRight = `-${preview.width}px`;
         if ([...e.target.classList].includes("last")) {
           frame.src = "#";
           frame.classList.add("hidden");
@@ -259,21 +277,21 @@ export default {
     changeShapes: function(e) {
       const preview = this.$refs.output;
       const cropType = e.target.classList[1];
-      const width = +window.getComputedStyle(preview).getPropertyValue("width").slice(0, -2);
-      const height = +window.getComputedStyle(preview).getPropertyValue("height").slice(0, -2);
+      const width = preview.width;
+      const height = preview.height;
       switch(cropType) {
         case "circle": {
           preview.style.clipPath = "circle(40%)";
           break;
         }
         case "square": {
-          let c;
+          let insetVlue;
           if (width > height) {
-            c = (width - height) / width / 2 * 100;
-            preview.style.clipPath = `inset(0% ${c}%)`;
+            insetVlue = (width - height) / width / 2 * 100;
+            preview.style.clipPath = `inset(0% ${insetVlue}%)`;
           } else {
-            c = (height - width) / height / 2 * 100;
-            preview.style.clipPath = `inset(${c}% 0%)`;
+            insetVlue = (height - width) / height / 2 * 100;
+            preview.style.clipPath = `inset(${insetVlue}% 0%)`;
           }
           break;
         }
@@ -281,6 +299,38 @@ export default {
           preview.style.clipPath = "none";
           break;
         }
+      }
+    },
+    handleClick: async function() {
+      try {
+        const frame = this.$refs.frame;
+        const container = this.$refs.containerToSave;
+        const frameCopy = container.firstChild.querySelector('.framePreview');
+        if (frame.src.slice(-1) === "#") {
+          const hidden = container.firstChild.querySelector('.framePreview');
+          hidden.remove();
+        }
+        
+        const config = {
+        headers : {
+          'authtoken': localStorage.getItem('token')
+        },
+        responseType: 'json'
+      };
+        const dataUrl = await domtoimage.toPng(this.$refs.containerToSave);
+        await axios.post(`${process.env.VUE_APP_BASE_API}/img/send`, { token: dataUrl }, config);
+
+        if (!container.firstChild.contains(frameCopy)) {
+          container.firstChild.appendChild(frameCopy);
+        }
+
+        this.$toast.show('The image was saved and sent to PhotoPrint Centre!', {
+          type: 'success'
+        });
+      } catch (err) {
+        this.$toast.show('Oops, something went wrong!.', {
+          type: 'error'
+        });
       }
     }
   }
@@ -302,6 +352,7 @@ export default {
 
 .preview img {
   max-width: 500px;
+  background-repeat: no-repeat;
 }
 
 .spinner {
@@ -360,10 +411,6 @@ export default {
 
 .square:active {
   border: 1px solid rgb(109, 109, 255);
-}
-
-.absolute {
-  position: absolute;
 }
 
 .defaultOption {

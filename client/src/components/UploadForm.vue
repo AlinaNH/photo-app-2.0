@@ -38,31 +38,17 @@
               </div>
             </label>
             <div class="clear" />
-            <va-card-actions align="end">
+            <div class="center">
               <va-button
                 :rounded="false"
                 @click="handleClick"
               >
                 Upload Image
               </va-button>
-            </va-card-actions>
+            </div>
           </form>
           <div class="clear" />
         </va-card>
-      </div>
-      <div class="clear" />
-      <div
-        ref="modal"
-        class="hidden"
-      >
-        <va-alert
-          v-model="isCloseableAlertVisible"
-          closeable
-          color="danger"
-          class="mb-4"
-        >
-          The photo has not been uploaded!
-        </va-alert>
       </div>
     </div>
   </div>
@@ -77,7 +63,7 @@ export default {
     const config = {
       headers : {
         'Content-Type': 'application/json',
-        'authToken': localStorage.getItem('token')
+        'authtoken': localStorage.getItem('token')
       },
       responseType: 'json'
     };
@@ -86,15 +72,13 @@ export default {
       if (!response.data.isAuthenticated) this.$router.push('/auth/login');
     } catch (err) {
       this.$toast.show('Failed to log in. Please, try again.', {
-        type: 'error',
-        duration: '4000'
+        type: 'error'
       });
     }
   },
   methods: {
     handleClick: async function () {
       const imageInput = this.$refs.imageInput.files[0];
-      const modal = this.$refs.modal;
       const fd = new FormData();
   
       fd.append("image", imageInput);
@@ -102,17 +86,17 @@ export default {
       const config = {
         headers : {
           'Content-Type' : 'multipart/form-data',
+          'authtoken': localStorage.getItem('token')
         },
         responseType: 'json'
       };
-
       try {
-        await axios.post(`${process.env.VUE_APP_BASE_API}/upload`, fd, config);
+        await axios.post(`${process.env.VUE_APP_BASE_API}/img/upload`, fd, config);
         this.$router.push('/editing');
       } catch (err) {
-        modal.classList.remove("hidden");
-        modal.classList.add("visible");
-        modal.firstChild.innerHTML = err.response?.data?.message;
+        this.$toast.show('Oops, something went wrong!.', {
+          type: 'error'
+        });
       }
     },
 
@@ -122,7 +106,7 @@ export default {
       const icon = this.$refs.icon;
       if (imageInput) {
         imagePreview.src = URL.createObjectURL(imageInput);
-        imagePreview.classList.toggle("visible");
+        imagePreview.classList.add("visible");
         icon.classList.add("hidden");
       }
     }

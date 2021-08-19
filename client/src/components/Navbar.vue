@@ -29,7 +29,7 @@ export default {
       const config = {
         headers : {
           "Content-Type": "application/json",
-          "authToken": localStorage.getItem("token")
+          "authtoken": localStorage.getItem("token")
         },
         responseType: "json"
       };

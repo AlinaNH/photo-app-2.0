@@ -6,9 +6,10 @@ const SALT = 10;
 const userSchema = mongoose.Schema({
   email: {
     type: String,
-    required: [true,"The email field is required!"],
+    required: [true, "The email field is required!"],
     trim: true,
-    unique: 1
+    unique: [true, "The user exists!"],
+    dropDups: [true, "The user exists!"]
   },
   password: {
     type: String,
@@ -20,47 +21,49 @@ const userSchema = mongoose.Schema({
   }
 });
 
-userSchema.pre("save", function (next) {
-  const user = this;
-  if (user.isModified("password")) {
-    bcrypt.genSalt(SALT, function (err, salt) {
-      if (err) return next(err)
-        bcrypt.hash(user.password, salt, function (err, hash) {
-        if (err) return next(err)
+userSchema.pre("save", async function(next) {
+  try {
+    const user = this;
+    if (await user.isModified("password")) {
+      const salt = await bcrypt.genSalt(SALT);
+      if (salt) {
+        const hash = await bcrypt.hash(user.password, salt);
         user.password = hash;
         next();
-      });
-    });
-  } else {
-  next();
+      }
+    }
+  } catch {
+    return next(err);
   }
 });
 
-userSchema.methods.comparePassword = function (candidatePassword, callBack) {
-  bcrypt.compare(candidatePassword, this.password, function (err, isMatch) {
-    if (err) return callBack(err);
-    callBack(null, isMatch);
-  });
+userSchema.methods.comparePassword = async function (candidatePassword) {
+  try {
+    return await bcrypt.compare(candidatePassword, this.password);
+  } catch (err) {
+    return err;
+  }
 }
 
-userSchema.methods.generateToken = function (callBack) {
-  const user = this;
-  const token = jwt.sign(user._id.toHexString(), process.env.SECRET);
-  user.token = token;
-  user.save(function (err, user) {
-    if (err) return callBack(err)
-    callBack(null, user)
-  });
+userSchema.methods.generateToken = async function() {
+  try {
+    const user = this;
+    const token = jwt.sign(user._id.toHexString(), process.env.SECRET);
+    user.token = token;
+    await user.save();
+  } catch (err) {
+    return err;
+  }
 };
 
-userSchema.statics.findByToken = function (token, callBack) {
-  const user = this;
-  jwt.verify(token, process.env.SECRET, function (err, decode) {
-    user.findOne({ "_id": decode, "token": token }, function (err, user) {
-      if (err) return callBack(err);
-      callBack(null, user);
-    });
-  });
+userSchema.statics.findByToken = async function (token) {
+  try {
+    const user = this;
+    const decode = await jwt.verify(token, process.env.SECRET);
+    return await user.findOne({ "_id": decode, "token": token });
+  } catch {
+    return err;
+  }
 };
 
 const User = mongoose.model("User", userSchema);

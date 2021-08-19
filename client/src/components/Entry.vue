@@ -67,14 +67,12 @@ export default {
       const isEmail = validator.isEmail(this.email);
       if (!isEmail) {
         this.$toast.show("Email is invalid.", {
-          type: "error",
-          duration: "4000"
+          type: "error"
         });
         return false;
       } else if (this.password.length <= 7) {
         this.$toast.show("Password should has at least 8 characters.", {
-          type: "error",
-          duration: "4000"  
+          type: "error" 
         });
         return false;
       } else return true;
@@ -103,8 +101,7 @@ export default {
         this.$router.push("/auth/login");
       } catch (err) {
         this.$toast.show("Failed to sign up. Please, try again.", {
-          type: "error",
-          duration: "4000"
+          type: "error"
         });
       }
     },
@@ -124,12 +121,10 @@ export default {
       try {
         const response = await axios.post(`${process.env.VUE_APP_BASE_API}/users/login`, data, config);
         window.localStorage.setItem("token", response.data?.userData?.token);
-        window.localStorage.setItem("userID", response.data?.userData?.userID);
         this.$router.push("/upload");
       } catch (err) {
         this.$toast.show("Failed to log in. Please, try again.", {
-          type: "error",
-          duration: "4000"
+          type: "error"
         });
       }
     }
