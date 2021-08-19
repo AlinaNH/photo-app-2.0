@@ -3,7 +3,6 @@ module.exports = async app => {
   const fs = require('fs');
   const path = require('path');
   const nodemailer = require("nodemailer");
-  const smtpTransport = require('nodemailer-smtp-transport');
 
   const imgModel = require('../models/ImageModel');
 
@@ -75,14 +74,14 @@ module.exports = async app => {
       const item = await imgModel.create(obj);
       item.save();
 
-      let transporter = nodemailer.createTransport(smtpTransport({
+      let transporter = nodemailer.createTransport({
         service: "Gmail",
         host: 'smtp.gmail.com',
         auth: {
           user: process.env.NODEMAILER_EMAIL,
           pass: process.env.NODEMAILER_PASSWORD,
         },
-      }));
+      });
     
       await transporter.sendMail({
         from: process.env.NODEMAILER_EMAIL,
